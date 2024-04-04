@@ -1,0 +1,44 @@
+#All code was written using Anaconda Navigator 2.5.0 with Jupyter Notebook 6.5.4
+
+import pandas as pd
+import numpy as np
+
+data = {
+    'Study': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    'ID1': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    'ID2': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    'ID3': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    'ID4': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    'ID5': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    'ID6': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    'ID7': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    'ID8': [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+    'ID9': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    'ID10': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    'ID11': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+}
+df = pd.DataFrame(data)
+
+# Transforming to long format
+df_long = pd.melt(df, id_vars=['Study'], var_name='Rater', value_name='Rating')
+
+print(df_long.head())  # Showing the transformed DataFrame's first few rows
+
+# Convert DataFrame to a matrix of responses, excluding the 'Study' column
+response_matrix = df.drop(columns=['Study']).to_numpy()
+
+n_raters = response_matrix.shape[1]  # Number of raters/columns
+
+# Calculate observed agreement Po
+Po = (np.sum(response_matrix == 1, axis=1) / n_raters).mean()
+
+# Calculate expected agreement Pe based on the distribution of 'correct/yes' (1) and 'incorrect/no' (0) across all items
+p_yes = np.sum(response_matrix) / (n_raters * df.shape[0])  # Proportion of 'yes' answers
+p_no = 1 - p_yes  # Proportion of 'no' answers, assuming binary responses
+
+Pe = p_yes**2 + p_no**2
+
+# Compute Gwet’s AC1
+AC1 = (Po - Pe) / (1 - Pe)
+
+print(f"Gwet's AC1: {AC1}")
